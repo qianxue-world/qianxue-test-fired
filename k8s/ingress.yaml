@@ -1,10 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mbti-personality-test-ingress
-  namespace: lovetest-mbti
+  name: qianxue-test-fired-ingress
+  namespace: qianxue-test-fired-ns
   labels:
-    app: mbti-personality-test
+    app: qianxue-test-fired
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -15,16 +15,16 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - mbti.lovetest.com.cn  # Replace with your domain
-    secretName: mbti-tls-secret
+    - test-fired.lovetest.com.cn
+    secretName: qianxue-test-fired-tls-secret
   rules:
-  - host: mbti.lovetest.com.cn # Replace with your domain
+  - host: test-fired.lovetest.com.cn
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: mbti-personality-test-service
+            name: qianxue-test-fired-service
             port:
               number: 80

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: lovetest-mbti
+  name: qianxue-test-fired-ns
   labels:
-    name: lovetest-mbti
+    name: qianxue-test-fired-ns
     managed-by: argocd

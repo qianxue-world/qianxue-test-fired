@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mbti-env-config
-  namespace: lovetest-mbti
+  name: qianxue-test-fired-env-config
+  namespace: qianxue-test-fired-ns
   labels:
-    app: mbti-personality-test
+    app: qianxue-test-fired

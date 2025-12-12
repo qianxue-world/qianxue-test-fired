@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mbti-personality-test-config
-  namespace: lovetest-mbti
+  name: qianxue-test-fired-config
+  namespace: qianxue-test-fired-ns
   labels:
-    app: mbti-personality-test
+    app: qianxue-test-fired
 data:
   # API Base URL for backend services
   API_BASE_URL: "https://api.lovetest.com.cn"
