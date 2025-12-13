@@ -1,11 +1,32 @@
-# React + TypeScript + Vite
+# 🔥 裁员概率测试
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个有趣的职场风险评估工具，通过科学的测试帮你了解自己被裁员的概率。
 
-Currently, two official plugins are available:
+## ✨ 特性
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 **科学评估**: 基于8个关键维度进行专业分析
+- 📊 **精准预测**: 给出详细的风险概率和等级
+- 💡 **改进建议**: 提供针对性的职场提升建议
+- 🎨 **精美界面**: 现代化的UI设计，流畅的用户体验
+- 📱 **响应式**: 完美适配各种设备
+
+## 🧪 测试维度
+
+1. **工作表现** - 你的工作完成质量和效率
+2. **工作态度** - 你对工作的积极性和配合度
+3. **技能水平** - 你的专业技能和学习能力
+4. **成本考量** - 你的薪资性价比和可替代性
+5. **人际关系** - 你在团队中的人缘和沟通能力
+6. **适应能力** - 你对变化和新事物的适应性
+7. **领导力** - 你的影响力和带队能力
+8. **创新能力** - 你的创新思维和改进贡献
+
+## 🚀 技术栈
+
+- React 18 + TypeScript
+- Vite 构建工具
+- CSS3 动画和渐变
+- 响应式设计
 
 ## React Compiler
 

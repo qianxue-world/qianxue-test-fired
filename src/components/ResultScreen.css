@@ -219,14 +219,12 @@
 }
 
 .section-title {
-  background: linear-gradient(135deg, #FF6B9D 0%, #C8A2FF 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 1.5em;
-  margin-bottom: 20px;
-  font-weight: bold;
+  color: #2C3E50;
+  font-size: 1.4em;
+  margin-bottom: 25px;
+  font-weight: 600;
   text-align: center;
+  letter-spacing: 0.3px;
 }
 
 /* 特质数据统计 */
@@ -350,5 +348,296 @@
 
   .praise-text {
     font-size: 1.1em;
+  }
+}
+
+/* 专业风险评估展示样式 */
+.layoff-risk-banner {
+  margin-bottom: 40px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.risk-showcase {
+  border-radius: 12px;
+  padding: 50px 30px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+}
+
+.risk-icon {
+  font-size: 3.5em;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.risk-percentage {
+  font-size: 4.5em;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Arial', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.risk-title {
+  font-size: 1.6em;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.risk-description {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.risk-desc {
+  color: #495057;
+  font-size: 1.15em;
+  line-height: 1.7;
+  padding: 30px;
+  background: #F8F9FA;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E9ECEF;
+}
+
+/* 专业评估维度统计 */
+.factors-section {
+  margin: 50px 0;
+}
+
+.factors-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.factor-stat-item {
+  background: #FFFFFF;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E9ECEF;
+  transition: all 0.3s ease;
+}
+
+.factor-stat-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.factor-stat-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.factor-name {
+  font-size: 1.05em;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.factor-score {
+  font-size: 1em;
+  font-weight: 600;
+  color: #495057;
+  background: #F8F9FA;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #DEE2E6;
+}
+
+.factor-progress {
+  position: relative;
+  height: 10px;
+  background: rgba(200, 200, 200, 0.3);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-track {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(200, 200, 200, 0.3);
+  border-radius: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 1.5s ease-out;
+  animation: progressFill 2s ease-out;
+}
+
+@keyframes progressFill {
+  0% {
+    width: 0%;
+  }
+}
+
+/* 专业改进建议 */
+.suggestions-section {
+  margin: 50px 0;
+  background: #F8F9FA;
+  border-radius: 12px;
+  padding: 35px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E9ECEF;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 18px 22px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E9ECEF;
+  transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+  transform: translateX(3px);
+  border-color: #2C3E50;
+}
+
+.suggestion-bullet {
+  color: #2C3E50;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 2px;
+  width: 8px;
+}
+
+.suggestion-text {
+  color: #495057;
+  font-size: 1em;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* 专业风险等级说明 */
+.risk-levels-section {
+  margin: 50px 0;
+  background: #F8F9FA;
+  border-radius: 12px;
+  padding: 35px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E9ECEF;
+}
+
+.risk-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.risk-level-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.risk-level-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(5px);
+}
+
+.risk-level-item.safe {
+  border-left: 4px solid #4CAF50;
+}
+
+.risk-level-item.low {
+  border-left: 4px solid #2196F3;
+}
+
+.risk-level-item.medium {
+  border-left: 4px solid #FF9800;
+}
+
+.risk-level-item.high {
+  border-left: 4px solid #FF5722;
+}
+
+.risk-level-item.critical {
+  border-left: 4px solid #F44336;
+}
+
+.level-icon {
+  font-size: 1.5em;
+}
+
+.level-name {
+  font-weight: 600;
+  color: #333;
+  min-width: 120px;
+}
+
+.level-desc {
+  color: #666;
+  font-size: 0.95em;
+}
+
+@media (max-width: 600px) {
+  .risk-showcase {
+    padding: 30px 15px;
+  }
+  
+  .risk-icon {
+    font-size: 3em;
+  }
+  
+  .risk-percentage {
+    font-size: 3em;
+  }
+  
+  .risk-title {
+    font-size: 1.5em;
+  }
+  
+  .factor-stat-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .suggestion-item {
+    padding: 12px 15px;
+  }
+  
+  .risk-level-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    text-align: left;
+  }
+  
+  .level-name {
+    min-width: auto;
   }
 }

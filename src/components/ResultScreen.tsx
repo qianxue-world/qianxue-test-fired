@@ -1,229 +1,161 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { PersonalityType, Answers } from '../types';
-import { mbtiCharacters, mbtiColors } from '../data/mbtiCharacters';
+import { LayoffResult } from '../types';
 import './ResultScreen.css';
 
 interface ResultScreenProps {
-  personalityType: PersonalityType;
-  answers?: Answers;
+  layoffResult: LayoffResult;
 }
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
-  personalityType,
-  answers,
+  layoffResult,
 }) => {
-  const { t } = useTranslation();
   
-  const character = mbtiCharacters[personalityType] || '🎭';
-  const colors = mbtiColors[personalityType] || { primary: '#FF6B9D', secondary: '#C8A2FF', gradient: 'linear-gradient(135deg, #FF6B9D 0%, #C8A2FF 100%)' };
-
-  // 计算每个维度的指示器位置（0-100，左边是第一个特质，右边是第二个特质）
-  const calculateIndicatorPositions = () => {
-    // 检查是否有有效的答案数据
-    const hasValidAnswers = answers && (
-      answers.E + answers.I + answers.N + answers.S + 
-      answers.T + answers.F + answers.J + answers.P
-    ) > 0;
-
-    if (!hasValidAnswers) {
-      // 如果没有答案数据，根据性格类型设置默认位置
-      const traits = personalityType.split('');
-      return {
-        EI: traits[0] === 'E' ? 25 : 75, // E人偏左(25%)，I人偏右(75%)
-        NS: traits[1] === 'N' ? 25 : 75, // N人偏左(25%)，S人偏右(75%)
-        TF: traits[2] === 'T' ? 25 : 75, // T人偏左(25%)，F人偏右(75%)
-        JP: traits[3] === 'J' ? 25 : 75, // J人偏左(25%)，P人偏右(75%)
-      };
+  // 根据风险等级设置专业的颜色和图标
+  const getRiskStyle = () => {
+    switch (layoffResult.risk) {
+      case 'SAFE':
+        return {
+          gradient: 'linear-gradient(135deg, #27AE60 0%, #2ECC71 100%)',
+          primary: '#27AE60',
+          icon: '✓'
+        };
+      case 'LOW':
+        return {
+          gradient: 'linear-gradient(135deg, #3498DB 0%, #5DADE2 100%)',
+          primary: '#3498DB',
+          icon: '↗'
+        };
+      case 'MEDIUM':
+        return {
+          gradient: 'linear-gradient(135deg, #F39C12 0%, #F7DC6F 100%)',
+          primary: '#F39C12',
+          icon: '⚠'
+        };
+      case 'HIGH':
+        return {
+          gradient: 'linear-gradient(135deg, #E74C3C 0%, #EC7063 100%)',
+          primary: '#E74C3C',
+          icon: '⚡'
+        };
+      case 'CRITICAL':
+        return {
+          gradient: 'linear-gradient(135deg, #C0392B 0%, #E74C3C 100%)',
+          primary: '#C0392B',
+          icon: '⚠'
+        };
+      default:
+        return {
+          gradient: 'linear-gradient(135deg, #2C3E50 0%, #34495E 100%)',
+          primary: '#2C3E50',
+          icon: '?'
+        };
     }
-    
-    const totalPerDimension = 15; // 每个维度15道题
-    
-    // 计算每个维度的位置
-    // 注意：位置需要反转，因为左边是第一个特质(E/N/T/J)，右边是第二个特质(I/S/F/P)
-    // 如果E多，应该偏左(小百分比)；如果I多，应该偏右(大百分比)
-    // 所以我们用第二个特质的百分比作为位置
-    const calculatePosition = (secondValue: number) => {
-      // 使用第二个特质的百分比，这样第一个特质多时位置偏左，第二个特质多时位置偏右
-      const percentage = Math.round((secondValue / totalPerDimension) * 100);
-      // 如果正好是50%，根据实际值微调
-      if (percentage === 50) {
-        return secondValue > 7.5 ? 52 : 48;
-      }
-      return percentage;
-    };
-
-    return {
-      EI: calculatePosition(answers!.I), // 用I的百分比，I多则偏右
-      NS: calculatePosition(answers!.S), // 用S的百分比，S多则偏右
-      TF: calculatePosition(answers!.F), // 用F的百分比，F多则偏右
-      JP: calculatePosition(answers!.P), // 用P的百分比，P多则偏右
-    };
   };
 
-  const positions = calculateIndicatorPositions();
-
-  // 调试信息
-  console.log('ResultScreen - Personality Type:', personalityType);
-  console.log('ResultScreen - Answers:', answers);
-  console.log('ResultScreen - Indicator Positions:', positions);
+  const style = getRiskStyle();
 
   return (
     <div className="result-screen">
-      {/* SVG Banner */}
-      <div className="personality-banner">
-        <img 
-          src={`/assets/${personalityType}.svg`} 
-          alt={`${personalityType} personality banner`}
-          className="banner-image"
-          onError={(e) => {
-            // Fallback to character showcase if SVG not found
-            e.currentTarget.style.display = 'none';
-            const fallback = document.querySelector('.character-showcase-fallback');
-            if (fallback) {
-              (fallback as HTMLElement).style.display = 'flex';
-            }
-          }}
-        />
-        {/* Fallback character showcase */}
-        <div className="character-showcase-fallback" style={{ background: colors.gradient, display: 'none' }}>
-          <div className="character-icon">{character}</div>
-          <div className="result-type-large">{personalityType}</div>
+      {/* 裁员风险展示 */}
+      <div className="layoff-risk-banner">
+        <div className="risk-showcase" style={{ background: style.gradient }}>
+          <div className="risk-icon">{style.icon}</div>
+          <div className="risk-percentage">{layoffResult.probability}%</div>
+          <div className="risk-title">{layoffResult.title}</div>
         </div>
       </div>
 
-      {/* 性格描述 */}
+      {/* 结果描述 */}
       <div className="result-description">
-        {/* 大号字母展示 */}
-        <div className="personality-type-display">
-          <div className="personality-letters" style={{ 
-            background: colors.gradient,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            {personalityType}
-          </div>
+        <div className="risk-description">
+          <p className="risk-desc">{layoffResult.description}</p>
         </div>
-        <p className="personality-desc">{t(`personalities.${personalityType}.description`)}</p>
-        {/* 夸夸气泡 */}
-          <div className="praise-bubble">
-            <span className="praise-text">{t(`personalities.${personalityType}.praise`)}</span>
-          </div>
-        {/* 特质数据统计 */}
-        <div className="traits-section">
-          <div className="traits-stats">
-            {/* E vs I */}
-            <div className="trait-stat-item">
-              <div className="trait-stat-labels">
-                <span className="trait-label">
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>E</span>
-                  {t('traits.E.name')}
-                </span>
-                <span className="trait-label">
-                  {t('traits.I.name')}
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>I</span>
-                </span>
-              </div>
-              <div className="trait-slider">
-                <div className="slider-track"></div>
-                <div 
-                  className="slider-indicator" 
-                  style={{ 
-                    left: `${positions.EI}%`,
-                    background: colors.gradient 
-                  }}
-                ></div>
-              </div>
-            </div>
 
-            {/* N vs S */}
-            <div className="trait-stat-item">
-              <div className="trait-stat-labels">
-                <span className="trait-label">
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>N</span>
-                  {t('traits.N.name')}
-                </span>
-                <span className="trait-label">
-                  {t('traits.S.name')}
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>S</span>
-                </span>
-              </div>
-              <div className="trait-slider">
-                <div className="slider-track"></div>
-                <div 
-                  className="slider-indicator" 
-                  style={{ 
-                    left: `${positions.NS}%`,
-                    background: colors.gradient 
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            {/* T vs F */}
-            <div className="trait-stat-item">
-              <div className="trait-stat-labels">
-                <span className="trait-label">
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>T</span>
-                  {t('traits.T.name')}
-                </span>
-                <span className="trait-label">
-                  {t('traits.F.name')}
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>F</span>
-                </span>
-              </div>
-              <div className="trait-slider">
-                <div className="slider-track"></div>
-                <div 
-                  className="slider-indicator" 
-                  style={{ 
-                    left: `${positions.TF}%`,
-                    background: colors.gradient 
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            {/* J vs P */}
-            <div className="trait-stat-item">
-              <div className="trait-stat-labels">
-                <span className="trait-label">
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>J</span>
-                  {t('traits.J.name')}
-                </span>
-                <span className="trait-label">
-                  {t('traits.P.name')}
-                  <span className="trait-letter-small" style={{ color: colors.primary }}>P</span>
-                </span>
-              </div>
-              <div className="trait-slider">
-                <div className="slider-track"></div>
-                <div 
-                  className="slider-indicator" 
-                  style={{ 
-                    left: `${positions.JP}%`,
-                    background: colors.gradient 
-                  }}
-                ></div>
-              </div>
-            </div>
+        {/* 各因子得分统计 */}
+        <div className="factors-section">
+          <h3 className="section-title">📊 各维度评分</h3>
+          <div className="factors-stats">
+            {Object.entries(layoffResult.factors).map(([key, value]) => {
+              const factorNames = {
+                performance: '工作表现',
+                attitude: '工作态度',
+                skill: '技能水平',
+                cost: '成本考量',
+                relationship: '人际关系',
+                adaptability: '适应能力',
+                leadership: '领导力',
+                innovation: '创新能力'
+              };
+              
+              const percentage = (value / 10) * 100; // 假设最高分是10
+              
+              return (
+                <div key={key} className="factor-stat-item">
+                  <div className="factor-stat-label">
+                    <span className="factor-name">{factorNames[key as keyof typeof factorNames]}</span>
+                    <span className="factor-score">{value}/10</span>
+                  </div>
+                  <div className="factor-progress">
+                    <div className="progress-track"></div>
+                    <div 
+                      className="progress-fill" 
+                      style={{ 
+                        width: `${percentage}%`,
+                        background: style.gradient 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* 生活攻略 */}
-        {t(`personalities.${personalityType}.lifeGuide`, { defaultValue: '' }) && (
-          <div className="life-guide-section">
-            <h3 className="section-title">📖 你的专属生活攻略</h3>
-            <div className="life-guide-content">
-              {t(`personalities.${personalityType}.lifeGuide`).split('\n\n').map((paragraph, index) => (
-                <p key={index} className="guide-paragraph">{paragraph}</p>
-              ))}
+        {/* 改进建议 */}
+        <div className="suggestions-section">
+          <h3 className="section-title">💡 改进建议</h3>
+          <div className="suggestions-list">
+            {layoffResult.suggestions.map((suggestion, index) => (
+              <div key={index} className="suggestion-item">
+                <span className="suggestion-bullet">•</span>
+                <span className="suggestion-text">{suggestion}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 风险等级说明 */}
+        <div className="risk-levels-section">
+          <h3 className="section-title">📋 风险等级说明</h3>
+          <div className="risk-levels">
+            <div className="risk-level-item safe">
+              <span className="level-icon">🛡️</span>
+              <span className="level-name">安全 (0-20%)</span>
+              <span className="level-desc">工作非常稳定</span>
+            </div>
+            <div className="risk-level-item low">
+              <span className="level-icon">😊</span>
+              <span className="level-name">低风险 (21-40%)</span>
+              <span className="level-desc">相对安全</span>
+            </div>
+            <div className="risk-level-item medium">
+              <span className="level-icon">⚠️</span>
+              <span className="level-name">中等风险 (41-60%)</span>
+              <span className="level-desc">需要注意</span>
+            </div>
+            <div className="risk-level-item high">
+              <span className="level-icon">🚨</span>
+              <span className="level-name">高风险 (61-80%)</span>
+              <span className="level-desc">需要改进</span>
+            </div>
+            <div className="risk-level-item critical">
+              <span className="level-icon">💀</span>
+              <span className="level-name">极高风险 (81-100%)</span>
+              <span className="level-desc">非常危险</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
-
     </div>
   );
 };

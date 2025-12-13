@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { StartScreen } from './components/StartScreen';
 import { QuestionScreen } from './components/QuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
-import { PaymentModal } from './components/PaymentModal';
-import { PaymentMethodModal } from './components/PaymentMethodModal';
-import { ActivationError } from './components/ActivationError';
-import { ActivationService } from './services/activationService';
-import { Answers, PersonalityType, Trait } from './types';
+import { Answers, LayoffResult, LayoffFactor, LayoffRisk } from './types';
 import './App.css';
 
 type Screen = 'start' | 'question' | 'result';
@@ -15,18 +11,10 @@ function App() {
   const [screen, setScreen] = useState<Screen>('start');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Answers>({
-    E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0
+    PERFORMANCE: 0, ATTITUDE: 0, SKILL: 0, COST: 0, 
+    RELATIONSHIP: 0, ADAPTABILITY: 0, LEADERSHIP: 0, INNOVATION: 0
   });
-  const [personalityType, setPersonalityType] = useState<PersonalityType>('INFP');
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showMethodModal, setShowMethodModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<{ plan: 'basic' | 'professional' | 'premium'; price: string } | null>(null);
-  
-  // 激活码验证状态
-  const [isActivated, setIsActivated] = useState<boolean>(false);
-  const [activationError, setActivationError] = useState<string | null>(null);
-  const [activationCode, setActivationCode] = useState<string | null>(null);
-  const [isValidating, setIsValidating] = useState<boolean>(true);
+  const [layoffResult, setLayoffResult] = useState<LayoffResult | null>(null);
 
   const totalQuestions = 60;
 
@@ -34,330 +22,213 @@ function App() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const isTestMode = urlParams.get('test') === 'true';
-    const testType = urlParams.get('type') as PersonalityType;
+    const testRisk = urlParams.get('risk') as LayoffRisk;
 
     // 安全检查：只在localhost环境下允许测试模式
     const isLocalhost = window.location.hostname === 'localhost' || 
                        window.location.hostname === '127.0.0.1' ||
                        window.location.hostname === '';
 
-    if (isTestMode && testType && isLocalhost) {
+    if (isTestMode && testRisk && isLocalhost) {
       // 测试模式：直接跳转到结果页
-      console.log('🧪 测试模式激活:', testType);
-      setPersonalityType(testType);
+      console.log('🧪 测试模式激活:', testRisk);
+      const mockResult = generateMockResult(testRisk);
+      setLayoffResult(mockResult);
       setScreen('result');
-      setIsActivated(true);
-      setIsValidating(false);
       
       // 生成模拟答案数据
-      const mockAnswers = generateMockAnswers(testType);
+      const mockAnswers = generateMockAnswers(testRisk);
       setAnswers(mockAnswers);
       return;
     }
-
-    // 正常模式：验证激活码
-    validateActivation();
   }, []);
 
   // 生成模拟答案数据
-  const generateMockAnswers = (type: PersonalityType): Answers => {
-    const traits = type.split('');
+  const generateMockAnswers = (risk: LayoffRisk): Answers => {
     const answers: Answers = {
-      E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0
+      PERFORMANCE: 0, ATTITUDE: 0, SKILL: 0, COST: 0,
+      RELATIONSHIP: 0, ADAPTABILITY: 0, LEADERSHIP: 0, INNOVATION: 0
     };
 
-    // 为每个维度生成合理的分数（总和为15）
-    answers[traits[0] as 'E' | 'I'] = Math.floor(Math.random() * 5) + 8; // 8-12
-    answers[traits[0] === 'E' ? 'I' : 'E'] = 15 - answers[traits[0] as 'E' | 'I'];
-
-    answers[traits[1] as 'N' | 'S'] = Math.floor(Math.random() * 5) + 8;
-    answers[traits[1] === 'N' ? 'S' : 'N'] = 15 - answers[traits[1] as 'N' | 'S'];
-
-    answers[traits[2] as 'T' | 'F'] = Math.floor(Math.random() * 5) + 8;
-    answers[traits[2] === 'T' ? 'F' : 'T'] = 15 - answers[traits[2] as 'T' | 'F'];
-
-    answers[traits[3] as 'J' | 'P'] = Math.floor(Math.random() * 5) + 8;
-    answers[traits[3] === 'J' ? 'P' : 'J'] = 15 - answers[traits[3] as 'J' | 'P'];
+    // 根据风险等级生成合理的分数
+    const baseScore = risk === 'SAFE' ? 6 : risk === 'LOW' ? 5 : risk === 'MEDIUM' ? 4 : risk === 'HIGH' ? 3 : 2;
+    
+    Object.keys(answers).forEach(key => {
+      answers[key as keyof Answers] = baseScore + Math.floor(Math.random() * 3);
+    });
 
     return answers;
   };
 
-  const validateActivation = async () => {
-    setIsValidating(true);
+  // 生成模拟结果数据
+  const generateMockResult = (risk: LayoffRisk): LayoffResult => {
+    const riskData = {
+      SAFE: { probability: 15, title: "安全区域", description: "你的工作非常稳定" },
+      LOW: { probability: 35, title: "低风险", description: "你的工作相对安全" },
+      MEDIUM: { probability: 55, title: "中等风险", description: "需要注意一些方面" },
+      HIGH: { probability: 75, title: "高风险", description: "需要积极改进" },
+      CRITICAL: { probability: 90, title: "极高风险", description: "情况比较危险" }
+    };
 
-    // 0. 开发环境检测 - 跳过激活码验证
-    if (ActivationService.isDevelopmentMode()) {
-      console.log('🔧 Development mode detected - skipping activation');
-      setIsActivated(true);
-      setActivationCode('DEV-MODE');
-      setIsValidating(false);
-      return;
-    }
-
-    // 1. 先检查本地存储的激活码
-    const savedActivation = ActivationService.getSavedActivationCode();
-    if (savedActivation) {
-      console.log('Using saved activation code:', savedActivation.code);
-      setIsActivated(true);
-      setActivationCode(savedActivation.code);
-      setIsValidating(false);
-      return;
-    }
-
-    // 2. 从URL获取激活码
-    const codeFromURL = ActivationService.getActivationCodeFromURL();
-    if (!codeFromURL) {
-      setActivationError('请使用有效的激活码访问此页面');
-      setIsActivated(false);
-      setIsValidating(false);
-      return;
-    }
-
-    setActivationCode(codeFromURL);
-
-    // 3. 向后端验证激活码
-    try {
-      const result = await ActivationService.validateActivationCode(codeFromURL);
-      
-      if (result.isValid && result.expiresAt) {
-        // 验证成功，保存到本地存储
-        ActivationService.saveActivationCode(codeFromURL, result.expiresAt);
-        setIsActivated(true);
-        setActivationError(null);
-      } else {
-        // 验证失败
-        setIsActivated(false);
-        setActivationError(result.message);
+    return {
+      risk,
+      probability: riskData[risk].probability,
+      title: riskData[risk].title,
+      description: riskData[risk].description,
+      suggestions: ["提升工作表现", "改善人际关系", "学习新技能"],
+      factors: {
+        performance: Math.floor(Math.random() * 10),
+        attitude: Math.floor(Math.random() * 10),
+        skill: Math.floor(Math.random() * 10),
+        cost: Math.floor(Math.random() * 10),
+        relationship: Math.floor(Math.random() * 10),
+        adaptability: Math.floor(Math.random() * 10),
+        leadership: Math.floor(Math.random() * 10),
+        innovation: Math.floor(Math.random() * 10)
       }
-    } catch (error) {
-      console.error('Activation validation failed:', error);
-      setIsActivated(false);
-      setActivationError('激活码验证失败，请稍后重试');
-    }
-
-    setIsValidating(false);
+    };
   };
+
+
 
   const handleStart = () => {
     setScreen('question');
   };
 
-  const handleAnswer = (trait: Trait) => {
-    const newAnswers = { ...answers, [trait]: answers[trait] + 1 };
+  const handleAnswer = (factor: LayoffFactor) => {
+    const newAnswers = { ...answers, [factor]: answers[factor] + 1 };
     setAnswers(newAnswers);
 
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      const type = calculatePersonalityType(newAnswers);
-      setPersonalityType(type);
-      // 直接显示结果，跳过付费页面
+      const result = calculateLayoffRisk(newAnswers);
+      setLayoffResult(result);
       setScreen('result');
-      // setShowPaymentModal(true); // 暂时隐藏付费功能
     }
   };
 
-  const handleSelectPlan = (plan: 'basic' | 'professional' | 'premium') => {
-    const prices = {
-      basic: '0.1',
-      professional: '19.9',
-      premium: '199'
-    };
-    setSelectedPlan({ plan, price: prices[plan] });
-    setShowMethodModal(true);
-  };
-
-  const handleSelectMethod = (method: 'wechat' | 'alipay') => {
-    if (!selectedPlan) return;
-    
-    // TODO: 在这里接入支付API
-    // 根据 method 和 selectedPlan 调用相应的支付接口
-    console.log('Payment method:', method);
-    console.log('Plan:', selectedPlan.plan);
-    console.log('Price:', selectedPlan.price);
-    
-    // 示例：调用支付接口
-    initiatePayment(method, selectedPlan.plan, selectedPlan.price);
-  };
-
-  const initiatePayment = async (method: 'wechat' | 'alipay', plan: string, price: string) => {
-    // ============================================
-    // 在这里配置您的收款账号信息
-    // ============================================
-    
-    const paymentConfig = {
-      // 微信支付配置
-      wechat: {
-        merchantId: 'YOUR_WECHAT_MERCHANT_ID',  // 您的微信商户号
-        appId: 'YOUR_WECHAT_APP_ID',            // 您的微信AppID
-        apiKey: 'YOUR_WECHAT_API_KEY',          // 您的微信API密钥
-      },
-      // 支付宝配置
-      alipay: {
-        appId: 'YOUR_ALIPAY_APP_ID',            // 您的支付宝AppID
-        privateKey: 'YOUR_ALIPAY_PRIVATE_KEY',  // 您的支付宝私钥
-        publicKey: 'YOUR_ALIPAY_PUBLIC_KEY',    // 支付宝公钥
-      }
+  const calculateLayoffRisk = (ans: Answers): LayoffResult => {
+    // 计算各个因子的得分
+    const factors = {
+      performance: ans.PERFORMANCE,
+      attitude: ans.ATTITUDE,
+      skill: ans.SKILL,
+      cost: ans.COST,
+      relationship: ans.RELATIONSHIP,
+      adaptability: ans.ADAPTABILITY,
+      leadership: ans.LEADERSHIP,
+      innovation: ans.INNOVATION
     };
 
-    // 构建订单信息
-    const orderInfo = {
-      orderId: `ORDER_${Date.now()}`,
-      plan: plan,
-      amount: price,
-      timestamp: new Date().toISOString(),
-      description: `MBTI性格测试 - ${plan}版`
-    };
+    // 计算总分 (最高分为各因子问题数 * 4，这里简化为总分)
+    const totalScore = Object.values(factors).reduce((sum, score) => sum + score, 0);
+    const maxScore = 50 * 4; // 假设50个问题，每个最高4分
+    const percentage = (totalScore / maxScore) * 100;
 
-    console.log('Payment Config:', paymentConfig[method]);
-    console.log('Order Info:', orderInfo);
+    // 根据得分确定风险等级和概率
+    let risk: LayoffRisk;
+    let probability: number;
+    let title: string;
+    let description: string;
+    let suggestions: string[];
 
-    try {
-      // TODO: 调用实际的支付API
-      // 示例代码（需要根据实际支付SDK调整）:
-      /*
-      let paymentResult;
-      
-      if (method === 'wechat') {
-        // 微信支付
-        paymentResult = await WeChatPay.createOrder({
-          merchantId: paymentConfig.wechat.merchantId,
-          appId: paymentConfig.wechat.appId,
-          orderId: orderInfo.orderId,
-          amount: orderInfo.amount,
-          description: orderInfo.description,
-          notifyUrl: 'https://your-domain.com/api/payment/notify',
-          returnUrl: 'https://your-domain.com/payment/success'
-        });
-        
-        // 显示支付二维码或跳转支付页面
-        // 等待支付结果回调
-        const paymentStatus = await checkPaymentStatus(orderInfo.orderId);
-        
-        if (paymentStatus === 'success') {
-          handlePaymentSuccess();
-        } else {
-          handlePaymentFailure('支付失败，请重试');
-        }
-        
-      } else {
-        // 支付宝支付
-        paymentResult = await Alipay.createOrder({
-          appId: paymentConfig.alipay.appId,
-          orderId: orderInfo.orderId,
-          amount: orderInfo.amount,
-          subject: orderInfo.description,
-          notifyUrl: 'https://your-domain.com/api/payment/notify',
-          returnUrl: 'https://your-domain.com/payment/success'
-        });
-        
-        // 跳转到支付页面
-        // 等待支付结果回调
-        const paymentStatus = await checkPaymentStatus(orderInfo.orderId);
-        
-        if (paymentStatus === 'success') {
-          handlePaymentSuccess();
-        } else {
-          handlePaymentFailure('支付失败，请重试');
-        }
-      }
-      */
-
-      // ============================================
-      // 临时：模拟支付流程（开发测试用）
-      // 实际使用时请删除此部分，使用上面的真实支付API
-      // ============================================
-      const userConfirm = window.confirm(
-        `支付方式: ${method === 'wechat' ? '微信支付' : '支付宝'}\n套餐: ${plan}\n金额: ¥${price}\n\n点击"确定"模拟支付成功\n点击"取消"模拟支付失败\n\n请在 src/App.tsx 的 initiatePayment 函数中配置您的收款账号`
-      );
-
-      if (userConfirm) {
-        // 模拟支付成功
-        handlePaymentSuccess();
-      } else {
-        // 模拟支付失败
-        handlePaymentFailure('支付已取消');
-      }
-
-    } catch (error) {
-      console.error('Payment error:', error);
-      handlePaymentFailure('支付过程中出现错误，请重试');
+    if (percentage >= 75) {
+      risk = 'SAFE';
+      probability = Math.floor(Math.random() * 15) + 5; // 5-20%
+      title = '职业稳定性优秀';
+      description = '评估结果显示您在当前职位具有很高的稳定性。您的综合表现优秀，是组织的核心人才，具有较强的不可替代性。';
+      suggestions = [
+        '继续保持卓越的工作表现，巩固核心地位',
+        '主动承担更多战略性项目和责任',
+        '发挥专业优势，指导和培养团队成员',
+        '关注行业发展趋势，保持技能前瞻性',
+        '建立更广泛的内外部专业网络'
+      ];
+    } else if (percentage >= 60) {
+      risk = 'LOW';
+      probability = Math.floor(Math.random() * 15) + 20; // 20-35%
+      title = '职业稳定性良好';
+      description = '您的工作表现整体良好，在组织中具有一定的价值和地位。虽然存在轻微的不确定性，但总体风险可控。';
+      suggestions = [
+        '持续提升专业技能和核心竞争力',
+        '加强跨部门协作和沟通能力',
+        '主动参与重要项目，提升可见度',
+        '建立良好的上下级关系',
+        '保持学习态度，适应组织变化'
+      ];
+    } else if (percentage >= 40) {
+      risk = 'MEDIUM';
+      probability = Math.floor(Math.random() * 15) + 40; // 40-55%
+      title = '职业稳定性一般';
+      description = '您目前处于中等风险水平，在某些关键维度上需要加强。这是一个重要的职业发展转折点，需要积极行动。';
+      suggestions = [
+        '重点提升工作绩效和专业能力',
+        '增强学习能力，掌握新技能和知识',
+        '改善人际关系，提升团队协作效果',
+        '主动与上级沟通，明确发展期望',
+        '制定具体的职业发展计划'
+      ];
+    } else if (percentage >= 25) {
+      risk = 'HIGH';
+      probability = Math.floor(Math.random() * 15) + 60; // 60-75%
+      title = '职业稳定性较低';
+      description = '评估显示您面临较高的职业风险，需要立即采取有效措施改善现状。建议制定系统性的改进计划。';
+      suggestions = [
+        '紧急提升工作表现和专业技能',
+        '积极寻求上级指导和职业发展建议',
+        '改善工作态度，提高团队合作精神',
+        '考虑内部转岗或职能调整机会',
+        '制定详细的能力提升计划',
+        '建立应急职业规划'
+      ];
+    } else {
+      risk = 'CRITICAL';
+      probability = Math.floor(Math.random() * 15) + 80; // 80-95%
+      title = '职业稳定性堪忧';
+      description = '评估结果表明您目前面临严重的职业风险。建议立即采取紧急措施，同时制定备选职业方案。';
+      suggestions = [
+        '立即与直属上级进行深度沟通',
+        '寻求人力资源部门的专业指导',
+        '制定紧急的能力提升和改进计划',
+        '考虑寻求外部职业发展机会',
+        '更新简历，准备求职材料',
+        '建立职业转换的应急预案',
+        '寻求职业咨询师的专业建议'
+      ];
     }
+
+    return {
+      risk,
+      probability,
+      title,
+      description,
+      suggestions,
+      factors
+    };
   };
 
-  const handlePaymentSuccess = () => {
-    // 支付成功，关闭所有弹窗，跳转到结果页面
-    setShowMethodModal(false);
-    setShowPaymentModal(false);
-    setScreen('result');
-  };
-
-  const handlePaymentFailure = (errorMessage: string) => {
-    // 支付失败，保持在支付弹窗，显示错误信息
-    alert(errorMessage);
-    // 不关闭任何弹窗，让用户可以重新尝试
-  };
-
-  const handleCloseMethodModal = () => {
-    setShowMethodModal(false);
-    // 不关闭套餐选择弹窗，让用户可以重新选择
-  };
-
-  const calculatePersonalityType = (ans: Answers): PersonalityType => {
-    let type = '';
-    type += ans.E > ans.I ? 'E' : 'I';
-    type += ans.N > ans.S ? 'N' : 'S';
-    type += ans.T > ans.F ? 'T' : 'F';
-    type += ans.J > ans.P ? 'J' : 'P';
-    return type as PersonalityType;
-  };
-
-  // Dynamic color themes for each question - Red to Purple spectrum
+  // Professional color themes - Business and corporate colors
   const colorThemes = [
-    'linear-gradient(135deg, #FFD93D 0%, #FF6B9D 50%, #C8A2FF 100%)', // Yellow → Pink → Purple
-    'linear-gradient(135deg, #FF6B9D 0%, #FF8BA7 50%, #FFB6C1 100%)', // Pink → Light Pink → Pastel Pink
-    'linear-gradient(135deg, #C8A2FF 0%, #B47AEA 50%, #9D5BD2 100%)', // Light Purple → Medium Purple → Deep Purple
-    'linear-gradient(135deg, #FF4757 0%, #FF6B9D 50%, #C8A2FF 100%)', // Red → Pink → Purple
-    'linear-gradient(135deg, #FFD93D 0%, #FFA07A 50%, #FF6B9D 100%)', // Yellow → Coral → Pink
-    'linear-gradient(135deg, #FF8BA7 0%, #C8A2FF 50%, #9D5BD2 100%)', // Light Pink → Purple → Deep Purple
-    'linear-gradient(135deg, #FF6B9D 0%, #E056FD 50%, #C8A2FF 100%)', // Pink → Magenta → Purple
-    'linear-gradient(135deg, #FFA07A 0%, #FF6B9D 50%, #B47AEA 100%)', // Coral → Pink → Purple
+    'linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #4A6741 100%)', // Dark Blue → Slate → Dark Green
+    'linear-gradient(135deg, #34495E 0%, #2C3E50 50%, #1A252F 100%)', // Slate → Dark Blue → Darker Blue
+    'linear-gradient(135deg, #4A6741 0%, #2C3E50 50%, #34495E 100%)', // Dark Green → Dark Blue → Slate
+    'linear-gradient(135deg, #1A252F 0%, #2C3E50 50%, #4A6741 100%)', // Darker Blue → Dark Blue → Dark Green
+    'linear-gradient(135deg, #2C3E50 0%, #4A6741 50%, #34495E 100%)', // Dark Blue → Dark Green → Slate
+    'linear-gradient(135deg, #34495E 0%, #1A252F 50%, #2C3E50 100%)', // Slate → Darker Blue → Dark Blue
+    'linear-gradient(135deg, #4A6741 0%, #34495E 50%, #2C3E50 100%)', // Dark Green → Slate → Dark Blue
+    'linear-gradient(135deg, #2C3E50 0%, #1A252F 50%, #4A6741 100%)', // Dark Blue → Darker Blue → Dark Green
   ];
 
   const getBackgroundStyle = () => {
     if (screen === 'question') {
-      return { background: colorThemes[currentQuestion] };
+      // 让问题页面使用自己的CSS背景
+      return {};
     }
     return { background: colorThemes[0] };
   };
 
-  // 显示加载状态
-  if (isValidating) {
-    return (
-      <div className="app" style={{ background: colorThemes[0] }}>
-        <div className="container" style={{ textAlign: 'center', padding: '100px 40px' }}>
-          <div style={{ fontSize: '3em', marginBottom: '20px' }}>⏳</div>
-          <h2 style={{ 
-            background: 'linear-gradient(135deg, #FF6B9D 0%, #C8A2FF 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            fontSize: '1.5em',
-            fontWeight: 'bold'
-          }}>
-            验证激活码中...
-          </h2>
-        </div>
-      </div>
-    );
-  }
 
-  // 显示激活错误
-  if (!isActivated && activationError) {
-    return <ActivationError message={activationError} code={activationCode || undefined} />;
-  }
-
-  // 激活成功，显示正常应用
   return (
     <div className="app" style={getBackgroundStyle()}>
       {/* <LanguageSwitcher /> */}
@@ -370,23 +241,13 @@ function App() {
             onAnswer={handleAnswer}
           />
         )}
-        {screen === 'result' && (
+        {screen === 'result' && layoffResult && (
           <ResultScreen
-            personalityType={personalityType}
-            answers={answers}
+            layoffResult={layoffResult}
           />
         )}
-        <div className="card-watermark">@潜学天下</div>
+        <div className="card-watermark">职场风险评估系统</div>
       </div>
-      {showPaymentModal && <PaymentModal onSelectPlan={handleSelectPlan} />}
-      {showMethodModal && selectedPlan && (
-        <PaymentMethodModal
-          plan={selectedPlan.plan}
-          price={selectedPlan.price}
-          onSelectMethod={handleSelectMethod}
-          onClose={handleCloseMethodModal}
-        />
-      )}
     </div>
   );
 }
