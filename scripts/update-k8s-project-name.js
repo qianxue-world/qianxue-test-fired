@@ -56,7 +56,7 @@ metadata:
     app: ${projectName}
 data:
   # API Base URL for backend services
-  API_BASE_URL: "https://api.lovetest.com.cn"
+  API_BASE_URL: "https://api.qianxue.online"
   
   nginx.conf: |
     server {
@@ -214,7 +214,7 @@ spec:
 
 function updateIngress(projectName, subdomain) {
   const filePath = path.join(K8S_DIR, 'ingress.yaml');
-  const host = `${subdomain}.lovetest.com.cn`;
+  const host = `${subdomain}.qianxue.online`;
   const content = `apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -357,7 +357,7 @@ async function main() {
   }
   
   const subdomain = extractSubdomain(projectName);
-  const host = `${subdomain}.lovetest.com.cn`;
+  const host = `${subdomain}.qianxue.online`;
   
   console.log('📝 Configuration Summary:');
   console.log(`   Project Name: ${projectName}`);

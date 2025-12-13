@@ -20,7 +20,7 @@ VITE_API_BASE_URL=http://localhost:8080
 
 ```yaml
 environment:
-  - VITE_API_BASE_URL=https://api.lovetest.com.cn
+  - VITE_API_BASE_URL=https://api.qianxue.online
 ```
 
 ### 3. Kubernetes 部署
@@ -29,7 +29,7 @@ environment:
 
 ```yaml
 data:
-  API_BASE_URL: "https://api.lovetest.com.cn"
+  API_BASE_URL: "https://api.qianxue.online"
 ```
 
 在 `k8s/env-configmap.yaml` 中配置运行时环境：
@@ -38,7 +38,7 @@ data:
 data:
   env-config.js: |
     window.ENV = {
-      VITE_API_BASE_URL: 'https://api.lovetest.com.cn'
+      VITE_API_BASE_URL: 'https://api.qianxue.online'
     };
 ```
 
@@ -59,20 +59,20 @@ data:
 
 ## 修改步骤
 
-### 修改为 https://api.lovetest.com.cn
+### 修改为 https://api.qianxue.online
 
 #### 方法1: 修改 K8s ConfigMap (推荐)
 
 ```bash
 # 编辑 k8s/configmap.yaml
 data:
-  API_BASE_URL: "https://api.lovetest.com.cn"
+  API_BASE_URL: "https://api.qianxue.online"
 
 # 编辑 k8s/env-configmap.yaml
 data:
   env-config.js: |
     window.ENV = {
-      VITE_API_BASE_URL: 'https://api.lovetest.com.cn'
+      VITE_API_BASE_URL: 'https://api.qianxue.online'
     };
 
 # 应用更改
@@ -88,7 +88,7 @@ kubectl rollout restart deployment/mbti-personality-test -n mbti-test
 ```bash
 # 编辑 docker-compose.yml
 environment:
-  - VITE_API_BASE_URL=https://api.lovetest.com.cn
+  - VITE_API_BASE_URL=https://api.qianxue.online
 
 # 重启容器
 docker-compose down
@@ -99,7 +99,7 @@ docker-compose up -d
 
 ```bash
 # 创建 .env 文件
-echo "VITE_API_BASE_URL=https://api.lovetest.com.cn" > .env
+echo "VITE_API_BASE_URL=https://api.qianxue.online" > .env
 
 # 重新构建
 npm run build
@@ -121,7 +121,7 @@ console.log(window.ENV?.VITE_API_BASE_URL);
 
 ```bash
 # 测试激活码验证接口
-curl -X POST https://api.lovetest.com.cn/api/activation/validate \
+curl -X POST https://api.qianxue.online/api/activation/validate \
   -H "Content-Type: application/json" \
   -d '{"code":"TEST-CODE-001"}'
 ```

@@ -7,7 +7,7 @@ metadata:
     app: qianxue-test-fired
 data:
   # API Base URL for backend services
-  API_BASE_URL: "https://api.lovetest.com.cn"
+  API_BASE_URL: "https://api.qianxue.online"
   
   nginx.conf: |
     server {

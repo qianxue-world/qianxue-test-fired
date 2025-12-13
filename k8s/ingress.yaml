@@ -15,10 +15,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - test-fired.lovetest.com.cn
+    - test-fired.qianxue.online
     secretName: qianxue-test-fired-tls-secret
   rules:
-  - host: test-fired.lovetest.com.cn
+  - host: test-fired.qianxue.online
     http:
       paths:
       - path: /
