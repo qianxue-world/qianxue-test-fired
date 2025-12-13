@@ -34,11 +34,11 @@ export const QuestionScreen: React.FC<QuestionScreenProps> = ({
     return dimensionMap[factor as keyof typeof dimensionMap] || { name: '综合评估', color: '#95A5A6' };
   };
   
-  const currentDimension = getDimensionInfo(questionData.options[0].factor);
-  
   if (!questionData) {
     return <div>Question not found</div>;
   }
+  
+  const currentDimension = getDimensionInfo(questionData.options[0].factor);
 
   return (
     <div className="question-screen">

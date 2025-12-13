@@ -16,7 +16,7 @@ function App() {
   });
   const [layoffResult, setLayoffResult] = useState<LayoffResult | null>(null);
 
-  const totalQuestions = 60;
+  const totalQuestions = 50;
 
   // 检查是否为测试模式
   useEffect(() => {
