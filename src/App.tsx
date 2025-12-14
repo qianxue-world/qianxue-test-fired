@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { StartScreen } from './components/StartScreen';
 import { QuestionScreen } from './components/QuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { ActivationError } from './components/ActivationError';
+import { ActivationService } from './services/activationService';
 import { Answers, LayoffResult, LayoffFactor, LayoffRisk } from './types';
 import './App.css';
 
@@ -15,10 +17,16 @@ function App() {
     RELATIONSHIP: 0, ADAPTABILITY: 0, LEADERSHIP: 0, INNOVATION: 0
   });
   const [layoffResult, setLayoffResult] = useState<LayoffResult | null>(null);
+  
+  // 激活码验证状态
+  const [isActivated, setIsActivated] = useState<boolean>(false);
+  const [activationError, setActivationError] = useState<string | null>(null);
+  const [activationCode, setActivationCode] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState<boolean>(true);
 
   const totalQuestions = 50;
 
-  // 检查是否为测试模式
+  // 初始化：检查激活码
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const isTestMode = urlParams.get('test') === 'true';
@@ -35,13 +43,77 @@ function App() {
       const mockResult = generateMockResult(testRisk);
       setLayoffResult(mockResult);
       setScreen('result');
+      setIsActivated(true);
+      setIsValidating(false);
       
       // 生成模拟答案数据
       const mockAnswers = generateMockAnswers(testRisk);
       setAnswers(mockAnswers);
       return;
     }
+
+    // 正常模式：验证激活码
+    validateActivation();
   }, []);
+
+  // 验证激活码
+  const validateActivation = async () => {
+    setIsValidating(true);
+
+    // 开发环境跳过验证
+    if (ActivationService.isDevelopmentMode()) {
+      console.log('🔧 开发环境 - 跳过激活码验证');
+      setIsActivated(true);
+      setActivationCode('DEV-MODE');
+      setIsValidating(false);
+      return;
+    }
+
+    // 检查本地存储的激活码
+    const savedActivation = ActivationService.getSavedActivationCode();
+    if (savedActivation) {
+      console.log('✅ 使用已保存的激活码:', savedActivation.code);
+      setIsActivated(true);
+      setActivationCode(savedActivation.code);
+      setIsValidating(false);
+      return;
+    }
+
+    // 从URL路径获取激活码
+    const codeFromURL = ActivationService.getActivationCodeFromURL();
+    if (!codeFromURL) {
+      setActivationError('请使用有效的激活码访问此页面');
+      setIsActivated(false);
+      setIsValidating(false);
+      return;
+    }
+
+    setActivationCode(codeFromURL);
+
+    // 向后端验证激活码
+    try {
+      const result = await ActivationService.validateActivationCode(codeFromURL);
+      
+      if (result.isValid && result.expiresAt) {
+        // 验证成功，保存到本地存储
+        ActivationService.saveActivationCode(codeFromURL, result.expiresAt);
+        setIsActivated(true);
+        setActivationError(null);
+        console.log('✅ 激活码验证成功:', codeFromURL);
+      } else {
+        // 验证失败
+        setIsActivated(false);
+        setActivationError(result.message || '激活码无效');
+        console.log('❌ 激活码验证失败:', result.message);
+      }
+    } catch (error) {
+      console.error('激活码验证错误:', error);
+      setIsActivated(false);
+      setActivationError('激活码验证失败，请稍后重试');
+    }
+
+    setIsValidating(false);
+  };
 
   // 生成模拟答案数据
   const generateMockAnswers = (risk: LayoffRisk): Answers => {
@@ -229,9 +301,26 @@ function App() {
   };
 
 
+  // 显示加载状态
+  if (isValidating) {
+    return (
+      <div className="app loading-screen">
+        <div className="loading-content">
+          <div className="loading-spinner"></div>
+          <p>正在验证激活码...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 显示激活错误
+  if (!isActivated && activationError) {
+    return <ActivationError message={activationError} code={activationCode || undefined} />;
+  }
+
+  // 激活成功，显示正常应用
   return (
     <div className="app" style={getBackgroundStyle()}>
-      {/* <LanguageSwitcher /> */}
       <div className="container">
         {screen === 'start' && <StartScreen onStart={handleStart} />}
         {screen === 'question' && (

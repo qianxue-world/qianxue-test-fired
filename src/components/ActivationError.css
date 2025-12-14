@@ -1,0 +1,159 @@
+.activation-error {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.activation-error-content {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+}
+
+.activation-error h1 {
+  color: #1e293b;
+  font-size: 2.5em;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.error-message {
+  color: #dc2626;
+  font-size: 1.1em;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.error-code {
+  background: #f1f5f9;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 40px;
+  font-size: 0.95em;
+  color: #64748b;
+}
+
+.error-code code {
+  color: #1e293b;
+  font-weight: 600;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.purchase-info {
+  background: #f8fafc;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid #e2e8f0;
+}
+
+.purchase-info h2 {
+  color: #1e293b;
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.purchase-info > p {
+  color: #475569;
+  font-size: 1em;
+  margin-bottom: 20px;
+}
+
+.xiaohongshu-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+.platform-icon {
+  font-size: 1.5em;
+}
+
+.account-name {
+  color: #dc2626;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.hint {
+  color: #64748b;
+  font-size: 0.9em;
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 14px 30px;
+  font-size: 1em;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #b91c1c;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+  padding: 12px 28px;
+  font-size: 1em;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+@media (max-width: 480px) {
+  .activation-error h1 {
+    font-size: 2em;
+  }
+  
+  .purchase-info {
+    padding: 25px 20px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
